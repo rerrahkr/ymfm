@@ -1328,6 +1328,39 @@ void ym2608::generate(output_data *output, uint32_t numsamples)
 
 
 //-------------------------------------------------
+//  generate_fm_adpcm - generate one sample of sound
+//  for FM and ADPCM
+//  This only work correctly when prescale is set to 6
+//  and output rate is matched to FM synthesis rate
+//-------------------------------------------------
+
+
+void ym2608::generate_fm_adpcm(output_data *output, uint32_t numsamples)
+{
+	for (uint32_t samp = 0; samp < numsamples; samp++, output++)
+	{
+		clock_fm_and_adpcm();
+		output->data[0] = m_last_fm.data[0];
+		output->data[1] = m_last_fm.data[1];
+	}
+}
+
+
+//-------------------------------------------------
+//  generate_ssg - generate one sample of sound
+//  for SSG
+//  This only work correctly when prescale is set to 6,
+//  and output is not resampled.
+//-------------------------------------------------
+
+
+void ym2608::generate_ssg(output_data *output, uint32_t numsamples)
+{
+	// TODO: resample the SSG as configured
+	m_ssg_resampler.resample(output, numsamples);
+}
+
+//-------------------------------------------------
 //  update_prescale - update the prescale value,
 //  recomputing derived values
 //-------------------------------------------------
@@ -1352,7 +1385,9 @@ void ym2608::update_prescale(uint8_t prescale)
 		switch (prescale)
 		{
 			default:
-			case 6:	m_fm_samples_per_output = 3;	m_ssg_resampler.configure(2, 3);	break;
+			// Skip to apply resampler to output separately
+			case 6:	m_fm_samples_per_output = 1;	m_ssg_resampler.configure(1, 1);	break;
+			// case 6:	m_fm_samples_per_output = 3;	m_ssg_resampler.configure(2, 3);	break;
 			case 3: m_fm_samples_per_output = 0;	m_ssg_resampler.configure(1, 3);	break;
 			case 2: m_fm_samples_per_output = 1;	m_ssg_resampler.configure(1, 6);	break;
 		}

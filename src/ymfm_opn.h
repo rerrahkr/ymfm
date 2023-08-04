@@ -545,6 +545,8 @@ public:
 
 	// generate one sample of sound
 	void generate(output_data *output, uint32_t numsamples = 1);
+	void generate_fm_adpcm(output_data *output, uint32_t numsamples = 1);
+	void generate_ssg(output_data *output, uint32_t numsamples = 1);
 
 protected:
 	// internal helpers
